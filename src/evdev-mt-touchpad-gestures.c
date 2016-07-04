@@ -188,6 +188,7 @@ tp_gesture_get_direction(struct tp_dispatch *tp, struct tp_touch *touch,
 	struct normalized_coords normalized;
 	struct device_float_coords delta;
 	double move_threshold = TP_MM_TO_DPI_NORMALIZED(1);
+	int dir = UNDEFINED_DIRECTION;
 
 	move_threshold *= (nfingers - 1);
 
@@ -196,9 +197,14 @@ tp_gesture_get_direction(struct tp_dispatch *tp, struct tp_touch *touch,
 	normalized = tp_normalize_delta(tp, delta);
 
 	if (normalized_length(normalized) < move_threshold)
-		return UNDEFINED_DIRECTION;
+		dir = UNDEFINED_DIRECTION;
+	else
+		dir = normalized_get_direction(normalized);
 
-	return normalized_get_direction(normalized);
+	log_debug(tp_libinput_context(tp),
+		  "gesture state: direction = %X\n", dir);
+
+	return dir;
 }
 
 static void
